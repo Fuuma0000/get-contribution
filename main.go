@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -78,6 +79,24 @@ func main() {
 		today := githubReponse.Data.User.ContributionsCollection.ContributionCalendar.Weeks[0].ContributionDays[0].Date
 		fmt.Fprintln(f, today)
 
+		// git add を実行する
+		err = gitAdd("failureDay.txt")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// git commit を実行する
+		err = gitCommit("Added failureDay")
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// git push を実行する
+		err = gitPush()
+		if err != nil {
+			log.Fatal(err)
+		}
+
 		return
 	}
 }
@@ -117,4 +136,22 @@ func getGithubResponse() GithubResponse {
 func isTodayContributed(response GithubResponse) bool {
 	todayContribution := response.Data.User.ContributionsCollection.ContributionCalendar.Weeks[0].ContributionDays[0]
 	return todayContribution.ContributionCount > 0
+}
+
+// git add を実行する関数
+func gitAdd(filename string) error {
+	cmd := exec.Command("git", "add", filename)
+	return cmd.Run()
+}
+
+// git commit を実行する関数
+func gitCommit(message string) error {
+	cmd := exec.Command("git", "commit", "-m", message)
+	return cmd.Run()
+}
+
+// git push を実行する関数
+func gitPush() error {
+	cmd := exec.Command("git", "push")
+	return cmd.Run()
 }
