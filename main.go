@@ -93,6 +93,15 @@ func main() {
 	// 今日のコントリビューション数を取得し、草を生やしていない場合にメッセージを出力する
 	if !isTodayContributed(githubReponse) {
 		fmt.Println("今日の草を生やしていません。")
+		f, err := os.OpenFile("failureDay.txt", os.O_APPEND|os.O_WRONLY, 0600)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer f.Close()
+
+		today := githubReponse.Data.User.ContributionsCollection.ContributionCalendar.Weeks[0].ContributionDays[0].Date
+		fmt.Fprintln(f, today)
+
 		return
 	}
 }
